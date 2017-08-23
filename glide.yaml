@@ -1,0 +1,4 @@
+package: git.tumeo.eu/lstme/tictactoe-server
+import:
+- package: github.com/inconshreveable/log15
+  version: ^2.11.0
