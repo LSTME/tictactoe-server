@@ -1,0 +1,18 @@
+# Build dev image first
+FROM ARG_BUILDIMAGE as builder
+# Copy files to appropriate locations
+WORKDIR /go/ARG_GOPROJECT_PATH
+COPY . .
+# Prepare build
+RUN go-wrapper download ARG_MAIN_PKG_PATH
+RUN go-wrapper install ARG_MAIN_PKG_PATH
+# Build the application
+RUN CGO_ENABLED=0 GOOS=ARG_GOOS GOARCH=ARG_GOARCH go build -a -installsuffix cgo -o ARG_NAME-ARG_GOOS-ARG_GOARCH ARG_MAIN_PKG_PATH
+
+# Build prod image
+FROM ARG_RUNIMAGE as runner
+RUN apk --no-cache add bash
+RUN apk --no-cache add ca-certificates && update-ca-certificates
+WORKDIR /root
+COPY --from=builder /go/ARG_GOPROJECT_PATH/ARG_NAME-ARG_GOOS-ARG_GOARCH .
+ENTRYPOINT ["./ARG_NAME-ARG_GOOS-ARG_GOARCH"]
